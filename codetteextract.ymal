@@ -15,9 +15,14 @@ jobs:
 
     - name: Extract Zip File
       run: |
-        mkdir extracted_content
-        unzip "Codette_Legacy_Public_Release 2.zip" -d extracted_content
-        ls extracted_content
+        if [ -f "Codette_Legacy_Public_Release 2.zip" ]; then
+          mkdir extracted_content
+          unzip "Codette_Legacy_Public_Release 2.zip" -d extracted_content
+          ls extracted_content
+        else
+          echo "Zip file does not exist. Exiting."
+          exit 1
+        fi
 
     - name: Commit Changes
       run: |
@@ -25,6 +30,10 @@ jobs:
         git config --global user.email "${{ github.actor }}@users.noreply.github.com"
         mv -v extracted_content/* ./
         rm -r extracted_content
-        git add .
-        git commit -m "Automated extraction of Codette_Legacy_Public_Release 2.zip"
-        git push
+        if [ -n "$(git status --porcelain)" ]; then
+          git add .
+          git commit -m "Automated extraction of Codette_Legacy_Public_Release 2.zip"
+          git push
+        else
+          echo "No changes to commit."
+        fi
