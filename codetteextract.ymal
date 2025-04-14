@@ -1,0 +1,30 @@
+name: Extract and Commit Zip File Contents
+
+on:
+  push:
+    paths:
+      - "Codette_Legacy_Public_Release 2.zip" # Trigger only when this zip file is modified
+
+jobs:
+  extract_zip:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Extract Zip File
+      run: |
+        mkdir extracted_content
+        unzip "Codette_Legacy_Public_Release 2.zip" -d extracted_content
+        ls extracted_content
+
+    - name: Commit Changes
+      run: |
+        git config --global user.name "${{ github.actor }}"
+        git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+        mv -v extracted_content/* ./
+        rm -r extracted_content
+        git add .
+        git commit -m "Automated extraction of Codette_Legacy_Public_Release 2.zip"
+        git push
